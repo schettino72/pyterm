@@ -21,7 +21,7 @@ import sys
 
 
 # compatibility python2 and python3
-if sys.version_info >= (3, 0):
+if sys.version_info >= (3, 0): # pragma: nocover
     _ = lambda s: s.decode('utf-8')
 else:
     _ = lambda s: s
@@ -96,10 +96,7 @@ class Term(object):
         """adds attribute code to buffer
         @return self (in order to allow chaining)
         """
-        value = self.codes.get(key, None)
-        if value is None:
-            raise AttributeError(key)
-        self._buffer += _(value)
+        self._buffer += _(self.codes[key])
         return self
 
     def __call__(self, content='', flush=True):
@@ -129,6 +126,8 @@ class Term(object):
         self.codes[name] = b''.join([(self[a]) for a in args])
 
 
+    # FIXME -m
+    # TODO include table with all tested capabilities
     def demo(self):
         """demo colors and capabilities of your terminal """
         for color in ANSI_COLORS:
