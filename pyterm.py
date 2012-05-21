@@ -1,6 +1,19 @@
-# references
-# http://pubs.opengroup.org/onlinepubs/7908799/xcurses/terminfo.html
-# http://code.activestate.com/recipes/475116/
+"""pyterm - terminal output formatting
+
+Ouput formatting to a terminal with curses capabilities
+
+Curses mode (curses.initwin) is not used.
+It controls color, text attributes (bold, inverse,...) and
+cursor position.
+
+references:
+
+ * http://pubs.opengroup.org/onlinepubs/7908799/xcurses/terminfo.html
+ * http://code.activestate.com/recipes/475116/
+"""
+
+__version__ = (0, 1, 'dev')
+
 
 
 import curses
@@ -8,7 +21,7 @@ import sys
 
 
 # compatibility python2 and python3
-if sys.version_info >= (3,0):
+if sys.version_info >= (3, 0):
     _ = lambda s: s.decode('utf-8')
 else:
     _ = lambda s: s
@@ -53,17 +66,36 @@ def get_term_codes():
 
 
 class Term(object):
-    def __init__(self, stream=None, default=('NORMAL',)):
+    """Ouput formatting to a terminal with curses capabilities
+
+    @ivar codes: (dict) key: capability-name as exposed by API
+                        value: capability-code as understood by curses
+
+    @ivar _buffer: content to be sent to terminal
+    """
+    def __init__(self, stream=None, default_end=('NORMAL',)):
+        """
+        @ivar stream: where the output will be written to (default: sys.stdout)
+        @param default_end: sequence of codes to be appended to the
+                            end of content on every write.
+                            default: ['NORMAL']
+        """
         self._buffer = ''
         self.codes = get_term_codes()
 
         self.stream = stream or sys.stdout
-        self.set_style('DEFAULT', default)
+        self.set_style('DEFAULT', default_end)
 
     def __getitem__(self, key):
+        """@return (bytes) code of capability/color
+        @param key: (str) capability/color name
+        """
         return self.codes[key]
 
     def __getattr__(self, key):
+        """adds attribute code to buffer
+        @return self (in order to allow chaining)
+        """
         value = self.codes.get(key, None)
         if value is None:
             raise AttributeError(key)
@@ -71,21 +103,29 @@ class Term(object):
         return self
 
     def __call__(self, content='', flush=True):
+        """adds given content & default_end to buffer, writes buffer if 'flush
+        @return self (in order to allow chaining)
+        """
         self._buffer += content + _(self['DEFAULT'])
         if flush:
             self.stream.write(self._buffer)
             self._buffer = ''
         return self
 
-    @property
-    def cols(self):
+    @staticmethod
+    def cols():
+        """@return (int) number of columns on terminal window"""
         return curses.tigetnum('cols')
 
-    @property
-    def lines(self):
+    @staticmethod
+    def lines():
+        """@return (int) number of lines on terminal window"""
         return curses.tigetnum('lines')
 
     def set_style(self, name, args):
+        """set/create a new capability
+        mostly used to create named sequence of codes
+        """
         self.codes[name] = b''.join([(self[a]) for a in args])
 
 
@@ -99,3 +139,37 @@ class Term(object):
             getattr(self, color).BG_YELLOW('bg_yellow')(' ')
             getattr(self, color).UNDERLINE.BOLD('rev+under')(' ')
             self('\n')
+
+
+
+
+
+
+
+
+
+
+
+
+# The MIT License
+
+# Copyright (c) 2012 Eduardo Naufel Schettino
+
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+# THE SOFTWARE.
+

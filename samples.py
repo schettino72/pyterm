@@ -20,7 +20,7 @@ class ProgressBar:
                              "should use a simpler progress dispaly.")
         self.term = term
         self._header_text = header
-        self.width = self.term.cols or 75
+        self.width = self.term.cols() or 75
         self.cleared = 1 #: true if we haven't drawn the bar yet.
         self.update(0, '')
 
