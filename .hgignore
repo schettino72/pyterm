@@ -1,0 +1,12 @@
+syntax:glob
+
+*.pyc
+.coverage*
+__pycache__
+.doit.db
+
+
+dist
+MANIFEST
+revision.txt
+pip-log.txt
