@@ -3,7 +3,7 @@
 import sys
 from StringIO import StringIO
 
-from pyterm import Term
+from pyterm import Term, demo_capabilities, demo_color
 
 
 def pytest_funcarg__term(request):
@@ -57,4 +57,10 @@ class TestTerm(object):
         # if they dont raise an exception they are good enough
         term.cols()
         term.lines()
-        term.demo()
+
+
+class TestDemo(object):
+    def test_capability(self, term):
+        demo_capabilities(term)
+    def test_color(self, term):
+        demo_color(term)

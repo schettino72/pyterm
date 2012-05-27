@@ -21,46 +21,42 @@ class ProgressBar:
         self.term = term
         self._header_text = header
         self.width = self.term.cols() or 75
-        self.cleared = 1 #: true if we haven't drawn the bar yet.
+        self.cleared = True #: true if we haven't drawn the bar yet.
         self.update(0, '')
 
+    def header(self):
+        """prints the header of the progress bar (first line)"""
+        self.term.BOLD.CYAN(self._header_text.center(self.width))('\n\n')
+
     def bar(self, percent):
-        width = self.width - 10
-        progress = int(width * percent)
-        remaining = width - progress
+        """print the progress bar (second line)"""
+        bar_width = self.width - 10
+        progress = int(bar_width * percent)
+        remaining = bar_width - progress
         self.term('%3d%%' % (percent*100))
         self.term.GREEN('[').GREEN.BOLD('='*progress + '-'*remaining).GREEN(']\n')
 
-    def header(self):
-        self.term.BOLD.CYAN(self._header_text.center(self.width))('\n\n')
-
     def update(self, percent, message):
+        """ """
         if self.cleared:
             self.header()
-            self.cleared = 0
+            self.cleared = False
+        # remove the second last line (progress-bar line) and redraw it
         self.term.BOL.UP.CLEAR_EOL
         self.bar(percent)
+        # update third line (progress message)
         self.term.CLEAR_EOL(message.center(self.width))
 
     def clear(self):
+        """clear the last 3 lines"""
         if not self.cleared:
             self.term.BOL.CLEAR_EOL.UP.CLEAR_EOL.UP.CLEAR_EOL()
-            self.cleared = 1
+            self.cleared = True
 
 
 
 if __name__ == "__main__":
     myterm = Term()
-
-    # demo colors
-    myterm.demo()
-
-    # basic features demo
-    myterm.YELLOW('a yellow line\n').NORMAL('somethin else\n')
-    myterm.UNDERLINE.GREEN("bit of green").UNDERLINE.RED(" and red\n")
-    myterm('normal again\n')
-    myterm.set_style('SUCCESS', ['GREEN', 'UNDERLINE'])
-    myterm.SUCCESS('ok\n')
 
     # progress bar demo
     import time
@@ -69,8 +65,5 @@ if __name__ == "__main__":
     filenames = ['this', 'that', 'other', 'foo', 'bar', 'baz']
     for i, filename in zip(range(len(filenames)), filenames):
         progress.update(float(i)/len(filenames), 'working on %s' % filename)
-        time.sleep(.7)
+        time.sleep(.5)
     progress.clear()
-
-
-    # 
