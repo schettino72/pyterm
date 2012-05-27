@@ -145,9 +145,9 @@ def demo_capabilities(term):
     term.HEADER("cap-code")("  ")
     term.HEADER("cap-value\n")
     for name, code in CAPABILITY:
-        print "%-13s" % name,
-        print "%-9s" % code,
-        print repr(term[name])
+        print("%-14s"  % name +
+              "%-10s" % code +
+              repr(term[name]))
 
 def demo_color(term):
     """demo colors of current terminal """
