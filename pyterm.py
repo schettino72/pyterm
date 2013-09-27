@@ -61,9 +61,9 @@ ANSI_COLORS = ['BLACK', 'RED', 'GREEN', 'YELLOW',
                'BLUE', 'MAGENTA', 'CYAN', 'WHITE']
 
 
-def get_term_codes():
+def get_term_codes(fd=None):
     """get capabilities and color codes"""
-    curses.setupterm()
+    curses.setupterm(None, fd)
     codes = dict((name, curses.tigetstr(code)) for name, code in CAPABILITY)
     for index, name in enumerate(ANSI_COLORS):
         codes[name] = curses.tparm(codes['A_COLOR'], index)
@@ -87,9 +87,8 @@ class Term(object):
                             default: ['NORMAL']
         """
         self._buffer = ''
-        self.codes = get_term_codes()
-
         self.stream = stream or sys.stdout
+        self.codes = get_term_codes(self.stream.fileno())
         self.set_style('DEFAULT', default_end)
 
     def __getitem__(self, key):

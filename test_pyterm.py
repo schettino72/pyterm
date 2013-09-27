@@ -3,12 +3,14 @@
 import sys
 from StringIO import StringIO
 
-from pyterm import Term, demo_capabilities, demo_color
+from pyterm import Term
 
 
 def pytest_funcarg__term(request):
     def create():
-        term = Term(stream=StringIO())
+        stream = StringIO()
+        stream.fileno = lambda : 0 # fake whatever fileno
+        term = Term(stream=stream)
         # replace real codes with <code-name>
         for name in term.codes.iterkeys():
             term.codes[name] = '<%s>' % name
@@ -23,8 +25,9 @@ class TestTerm(object):
         assert term.codes['NORMAL'] == term.codes['DEFAULT']
 
     def test_init_params(self):
-        term = Term(stream="Fake", default_end=[])
-        assert "Fake" == term.stream
+        my_stream = open('/tmp/xxx', 'w')
+        term = Term(stream=my_stream, default_end=[])
+        assert my_stream == term.stream
         assert '' == term.codes['DEFAULT']
 
     def test_get_code(self, term):
@@ -60,7 +63,5 @@ class TestTerm(object):
 
 
 class TestDemo(object):
-    def test_capability(self, term):
-        demo_capabilities(term)
     def test_color(self, term):
-        demo_color(term)
+        term.demo()
