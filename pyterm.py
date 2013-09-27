@@ -1,9 +1,11 @@
 """pyterm - terminal output formatting
 
+http://???
+
 Ouput formatting to a terminal with curses capabilities
 
 Curses mode (curses.initwin) is not used.
-pyterm controls color, text attributes (bold, inverse,...) and
+It controls color, text attributes (bold, inverse,...) and
 cursor position.
 
 references:
@@ -11,10 +13,8 @@ references:
  * http://pubs.opengroup.org/onlinepubs/7908799/xcurses/terminfo.html
  * http://code.activestate.com/recipes/475116/
 
-
-The MIT License
+The MIT License  (see LICENSE file)
 Copyright (c) 2012 Eduardo Naufel Schettino
-see LICENSE file
 
 """
 
@@ -33,29 +33,28 @@ else:
     _ = lambda s: s
 
 
-# each element is a 2-value tuple mapping capability-name to capability-code
 CAPABILITY = [
     # cursor movement
-    ('BOL', 'cr'),     # carriage_return (go to beginning of line)
-    ('UP', 'cuu1'),    # cursor_up
-    ('DOWN', 'cud1'),  # cursor_down
-    ('LEFT', 'cub1'),  # cursor_left
-    ('RIGHT', 'cuf1'), # cursor_right
+    ('BOL', 'cr'),   # begining of line
+    ('UP', 'cuu1'),
+    ('DOWN', 'cud1'),
+    ('LEFT', 'cub1'),
+    ('RIGHT', 'cuf1'),
 
     # clear
-    ('CLEAR_SCREEN', 'clear'), # clear_screen
-    ('CLEAR_EOL', 'el'),       # clr_eol - clear to end of line
-    ('CLEAR_EOS', 'ed'),       # clr_eos - clear to end of display
+    ('CLEAR_SCREEN', 'clear'),
+    ('CLEAR_EOL', 'el'),
+    ('CLEAR_EOS', 'ed'), # clear to end of display
 
     # write mode
-    ('BOLD', 'bold'),      # enter_bold_mode - turn on bold (extra bright) mode
-    ('REVERSE', 'rev'),    # enter_reverse_mode - turn on reverse video mode
-    ('UNDERLINE', 'smul'), # enter_underline_mode - start underscore mode
-    ('NORMAL', 'sgr0'),    # exit_attribute_mode - turn off all attributes
+    ('BOLD', 'bold'),
+    ('REVERSE', 'rev'),
+    ('UNDERLINE', 'smul'),
+    ('NORMAL', 'sgr0'),
 
     # colors
-    ('A_COLOR', 'setaf'),    # set_a_foreground
-    ('A_BG_COLOR', 'setab'), # set_a_background
+    ('A_COLOR', 'setaf'),
+    ('A_BG_COLOR', 'setab'),
     ]
 
 ANSI_COLORS = ['BLACK', 'RED', 'GREEN', 'YELLOW',
@@ -63,9 +62,7 @@ ANSI_COLORS = ['BLACK', 'RED', 'GREEN', 'YELLOW',
 
 
 def get_term_codes():
-    """get capabilities and color codes
-    @return (dict) capability-name: capability-value
-    """
+    """get capabilities and color codes"""
     curses.setupterm()
     codes = dict((name, curses.tigetstr(code)) for name, code in CAPABILITY)
     for index, name in enumerate(ANSI_COLORS):
@@ -78,7 +75,7 @@ class Term(object):
     """Ouput formatting to a terminal with curses capabilities
 
     @ivar codes: (dict) key: capability-name as exposed by API
-                        value: capability-value for current terminal
+                        value: capability-code as understood by curses
 
     @ivar _buffer: content to be sent to terminal
     """
@@ -135,39 +132,15 @@ class Term(object):
         self.codes[name] = b''.join([(self[a]) for a in args])
 
 
-
-#### demo functions
-
-def demo_capabilities(term):
-    """display table with capabilities of current terminal"""
-    term.set_style('HEADER', ('BOLD', 'UNDERLINE'))
-    term.HEADER("API-name")("      ")
-    term.HEADER("cap-code")("  ")
-    term.HEADER("cap-value\n")
-    for name, code in CAPABILITY:
-        print("%-14s"  % name +
-              "%-10s" % code +
-              repr(term[name]))
-
-def demo_color(term):
-    """demo colors of current terminal """
-    for color in ANSI_COLORS:
-        getattr(term, color)("%-8s" % color)(' ')
-        getattr(term, color).BOLD('bold')(' ')
-        getattr(term, color).REVERSE('reverse')(' ')
-        getattr(term, color).UNDERLINE('underline')(' ')
-        getattr(term, color).BG_YELLOW('bg_yellow')(' ')
-        getattr(term, color).UNDERLINE.BOLD('bold+under')(' ')
-        term('\n')
-
-
-
-if __name__ == "__main__":
-    term = Term()
-
-    term.BOLD.REVERSE("\n    *** Capabilities ***   \n")
-    demo_capabilities(term)
-
-    term.BOLD.REVERSE("\n    *** Colors ***    \n")
-    demo_color(term)
-    print("\n")
+    # FIXME -m
+    # TODO include table with all tested capabilities
+    def demo(self):
+        """demo colors and capabilities of your terminal """
+        for color in ANSI_COLORS:
+            getattr(self, color)("%-8s" % color)(' ')
+            getattr(self, color).BOLD('bold')(' ')
+            getattr(self, color).REVERSE('reverse')(' ')
+            getattr(self, color).UNDERLINE('underline')(' ')
+            getattr(self, color).BG_YELLOW('bg_yellow')(' ')
+            getattr(self, color).UNDERLINE.BOLD('bold+under')(' ')
+            self('\n')
