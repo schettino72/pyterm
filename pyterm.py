@@ -61,17 +61,8 @@ ANSI_COLORS = ['BLACK', 'RED', 'GREEN', 'YELLOW',
                'BLUE', 'MAGENTA', 'CYAN', 'WHITE']
 
 
-def get_term_codes(fd=None):
-    """get capabilities and color codes"""
-    curses.setupterm(None, fd)
-    codes = dict((name, curses.tigetstr(code)) for name, code in CAPABILITY)
-    for index, name in enumerate(ANSI_COLORS):
-        codes[name] = curses.tparm(codes['A_COLOR'], index)
-        codes['BG_'+name] = curses.tparm(codes['A_BG_COLOR'], index)
-    return codes
 
-
-class Term(object):
+class CapTerm(object):
     """Ouput formatting to a terminal with curses capabilities
 
     @ivar codes: (dict) key: capability-name as exposed by API
@@ -88,8 +79,20 @@ class Term(object):
         """
         self._buffer = ''
         self.stream = stream or sys.stdout
-        self.codes = get_term_codes(self.stream.fileno())
+        self.codes = self.get_term_codes(self.stream.fileno())
         self.set_style('DEFAULT', default_end)
+
+
+    @staticmethod
+    def get_term_codes(fd=None):
+        """get capabilities and color codes"""
+        curses.setupterm(None, fd)
+        codes = dict((name, curses.tigetstr(code)) for name, code in CAPABILITY)
+        for index, name in enumerate(ANSI_COLORS):
+            codes[name] = curses.tparm(codes['A_COLOR'], index)
+            codes['BG_'+name] = curses.tparm(codes['A_BG_COLOR'], index)
+        return codes
+
 
     def __getitem__(self, key):
         """@return (bytes) code of capability/color
@@ -143,3 +146,27 @@ class Term(object):
             getattr(self, color).BG_YELLOW('bg_yellow')(' ')
             getattr(self, color).UNDERLINE.BOLD('bold+under')(' ')
             self('\n')
+
+
+
+class DumbTerm(CapTerm):
+    """Same interface as Term but for a stream without any capability"""
+
+    @staticmethod
+    def get_term_codes(fd=None):
+        """get capabilities and color codes"""
+        curses.setupterm(None, fd)
+        codes = dict((name, '') for name, _ in CAPABILITY)
+        for name in ANSI_COLORS:
+            codes[name] = ''
+            codes['BG_'+name] = ''
+        return codes
+
+
+class Term(object):
+    def __new__(self, stream=None, default_end=('NORMAL',)):
+        stream = stream or sys.stdout
+        if stream.isatty():
+            return CapTerm(stream, default_end)
+        else:
+            return DumbTerm(stream, default_end)

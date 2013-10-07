@@ -1,3 +1,2 @@
 . FakeTerm to be used when curses is not available
-. detect/control sys.stdout is redirected
 . docs - use (https://github.com/ralphbean/ansi2html)
