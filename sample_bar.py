@@ -63,7 +63,7 @@ if __name__ == "__main__":
     term = Term()
     progress = ProgressBar(term, 'Processing some files')
     filenames = ['this', 'that', 'other', 'foo', 'bar', 'baz']
-    for i, filename in zip(range(len(filenames)), filenames):
+    for i, filename in enumerate(filenames):
         progress.update(float(i)/len(filenames), 'working on %s' % filename)
         time.sleep(.5)
     progress.clear()
