@@ -70,17 +70,17 @@ class CapTerm(object):
 
     @ivar _buffer: content to be sent to terminal
     """
-    def __init__(self, stream=None, default_end=('NORMAL',)):
+    def __init__(self, stream=None, start_code=('NORMAL',) ):
         """
         @ivar stream: where the output will be written to (default: sys.stdout)
-        @param default_end: sequence of codes to be appended to the
-                            end of content on every write.
-                            default: ['NORMAL']
+        @param start_code: sequence of codes to be appended to the
+                           end of content on every write.
+                           default: []
         """
-        self._buffer = ''
         self.stream = stream or sys.stdout
         self.codes = self.get_term_codes(self.stream.fileno())
-        self.set_style('DEFAULT', default_end)
+        self.set_style('DEFAULT', start_code)
+        self._buffer = _(self['DEFAULT'])
 
 
     @staticmethod
@@ -111,10 +111,10 @@ class CapTerm(object):
         """adds given content & default_end to buffer, writes buffer if 'flush
         @return self (in order to allow chaining)
         """
-        self._buffer += content + _(self['DEFAULT'])
+        self._buffer += content + _(self['NORMAL'])
         if flush:
             self.stream.write(self._buffer)
-            self._buffer = ''
+            self._buffer = _(self['DEFAULT'])
         return self
 
     @staticmethod
@@ -164,9 +164,9 @@ class DumbTerm(CapTerm):
 
 
 class Term(object):
-    def __new__(self, stream=None, default_end=('NORMAL',)):
+    def __new__(self, stream=None, start_code=('NORMAL',), color=None):
         stream = stream or sys.stdout
-        if stream.isatty():
-            return CapTerm(stream, default_end)
+        if color is True or (color is None and stream.isatty()):
+            return CapTerm(stream, start_code)
         else:
-            return DumbTerm(stream, default_end)
+            return DumbTerm(stream, start_code)
