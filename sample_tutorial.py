@@ -1,13 +1,13 @@
 # Color manipulation tutorial
 
-from pyterm import Term
+from pyterm import Term, escape
 
 # create a terminal instance
 myterm = Term()
 
 # you can check the code for a capability in your terminal
-print(myterm.codes['BLUE'].encode('string_escape'))
-print(myterm['BLUE'].encode('string_escape'))
+print(escape(myterm.codes['BLUE']))
+print(escape(myterm['BLUE']))
 
 # and check all the available capabilities
 print(myterm.codes.keys())

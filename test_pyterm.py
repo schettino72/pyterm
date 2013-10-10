@@ -1,5 +1,9 @@
 import sys
-from StringIO import StringIO
+try:
+    from StringIO import StringIO
+except: # pragma: no cover
+     # py3
+    from io import StringIO
 
 from pyterm import CapTerm, DumbTerm
 
@@ -10,10 +14,13 @@ def pytest_funcarg__term(request):
         stream.fileno = lambda : 0 # fake whatever fileno
         term = CapTerm(stream=stream)
         # replace real codes with <code-name>
-        for name in term.codes.iterkeys():
-            term.codes[name] = '<{}>'.format(name)
-        term.codes['NORMAL'] = '<NORMAL>'
-        term.codes['DEFAULT'] = '<DEFAULT>'
+        for name in term.codes.keys():
+            if sys.version_info >= (3, 0): # pragma: nocover
+                term.codes[name] = bytes('<{}>'.format(name), 'ascii')
+            else:
+                term.codes[name] = '<{}>'.format(name)
+        term.codes['NORMAL'] = b'<NORMAL>'
+        term.codes['DEFAULT'] = b'<DEFAULT>'
         term() # flush initial streeam that contains real code
         stream.seek(0)
         stream.truncate(0)
@@ -31,12 +38,12 @@ class TestCapTerm(object):
         my_stream = open('/tmp/xxx', 'w')
         term = CapTerm(stream=my_stream, start_code=[])
         assert my_stream == term.stream
-        assert '' == term.codes['DEFAULT']
-        assert '' != term.codes['BLUE']
+        assert b'' == term.codes['DEFAULT']
+        assert b'' != term.codes['BLUE']
 
     def test_get_code(self, term):
-        assert "<BLUE>" == term['BLUE']
-        assert "<UP>" == term['UP']
+        assert b"<BLUE>" == term['BLUE']
+        assert b"<UP>" == term['UP']
 
     def test_write_code(self, term):
         assert term == term.BLUE
@@ -71,8 +78,8 @@ class TestDumbTerm(object):
         my_stream = open('/tmp/xxx', 'w')
         term = DumbTerm(stream=my_stream, start_code=[])
         assert my_stream == term.stream
-        assert '' == term.codes['DEFAULT']
-        assert '' == term.codes['BLUE']
+        assert b'' == term.codes['DEFAULT']
+        assert b'' == term.codes['BLUE']
 
 
 

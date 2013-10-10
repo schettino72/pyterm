@@ -29,8 +29,11 @@ import sys
 # compatibility python2 and python3
 if sys.version_info >= (3, 0): # pragma: nocover
     _ = lambda s: s.decode('utf-8')
+    escape = lambda x: x.decode('ascii').\
+        encode('unicode_escape').decode('utf-8')
 else:
     _ = lambda s: s
+    escape = lambda x: x.encode('string_escape')
 
 # pair with friendly-name / capability-name
 CAPABILITY = [
@@ -150,8 +153,7 @@ class CapTerm(object):
         self('\n')
         self.BOLD.REVERSE(line_fmt.format('NAME', 'CODE', 'VALUE'))
         for name, cap_name in CAPABILITY:
-            self(line_fmt.format(name, cap_name,
-                                 self[name].encode('string_escape')))
+            self(line_fmt.format(name, cap_name, escape(self[name])))
         self.REVERSE('-' * 50 + '\n')
         self('\n')
 
@@ -164,10 +166,10 @@ class DumbTerm(CapTerm):
     def get_term_codes(fd=None):
         """get capabilities and color codes"""
         curses.setupterm(None, fd)
-        codes = dict((name, '') for name, _ in CAPABILITY)
+        codes = dict((name, b'') for name, _ in CAPABILITY)
         for name in ANSI_COLORS:
-            codes[name] = ''
-            codes['BG_'+name] = ''
+            codes[name] = b''
+            codes['BG_'+name] = b''
         return codes
 
 
