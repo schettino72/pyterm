@@ -14,7 +14,7 @@ references:
  * http://code.activestate.com/recipes/475116/
 
 The MIT License  (see LICENSE file)
-Copyright (c) 2012 Eduardo Naufel Schettino
+Copyright (c) 2013 Eduardo Naufel Schettino
 
 """
 
@@ -32,7 +32,7 @@ if sys.version_info >= (3, 0): # pragma: nocover
 else:
     _ = lambda s: s
 
-
+# pair with friendly-name / capability-name
 CAPABILITY = [
     # cursor movement
     ('BOL', 'cr'),   # begining of line
@@ -134,18 +134,26 @@ class CapTerm(object):
         self.codes[name] = b''.join([(self[a]) for a in args])
 
 
-    # FIXME -m
-    # TODO include table with all tested capabilities
     def demo(self):
         """demo colors and capabilities of your terminal """
+        self.REVERSE('\n{:^56}\n'.format('ANSI COLORS'))
         for color in ANSI_COLORS:
             getattr(self, color)("%-8s" % color)(' ')
             getattr(self, color).BOLD('bold')(' ')
             getattr(self, color).REVERSE('reverse')(' ')
             getattr(self, color).UNDERLINE('underline')(' ')
             getattr(self, color).BG_YELLOW('bg_yellow')(' ')
-            getattr(self, color).UNDERLINE.BOLD('bold+under')(' ')
+            getattr(self, color).UNDERLINE.BOLD('bold+underline')(' ')
             self('\n')
+
+        line_fmt = "| {:15} | {:10} | {:15} |\n"
+        self('\n')
+        self.BOLD.REVERSE(line_fmt.format('NAME', 'CODE', 'VALUE'))
+        for name, cap_name in CAPABILITY:
+            self(line_fmt.format(name, cap_name,
+                                 self[name].encode('string_escape')))
+        self.REVERSE('-' * 50 + '\n')
+        self('\n')
 
 
 
@@ -170,3 +178,9 @@ class Term(object):
             return CapTerm(stream, start_code)
         else:
             return DumbTerm(stream, start_code)
+
+
+
+if __name__ == '__main__':
+    term = Term()
+    term.demo()
