@@ -5,7 +5,7 @@ except: # pragma: no cover
      # py3
     from io import StringIO
 
-from pyterm import CapTerm, DumbTerm
+from pyterm import CapTerm, DumbTerm, Term
 
 
 def pytest_funcarg__term(request):
@@ -81,6 +81,24 @@ class TestDumbTerm(object):
         assert b'' == term.codes['DEFAULT']
         assert b'' == term.codes['BLUE']
 
+
+class TestTerm(object):
+    def test_new(self):
+        stream_no_tty = StringIO()
+        stream_no_tty.fileno = lambda : 0 # fake whatever fileno
+        stream_no_tty.isatty = lambda : False
+        tty = StringIO()
+        tty.fileno = lambda : 0 # fake whatever fileno
+        tty.isatty = lambda : True
+        # class used is based on stream being a tty or not
+        assert CapTerm == Term(stream=tty).__class__
+        assert DumbTerm == Term(stream=stream_no_tty).__class__
+        # force use of capabilities
+        assert CapTerm == Term(stream=tty, color=True).__class__
+        assert CapTerm == Term(stream=stream_no_tty, color=True).__class__
+        # force disable capabilities
+        assert DumbTerm == Term(stream=tty, color=False).__class__
+        assert DumbTerm == Term(stream=stream_no_tty, color=False).__class__
 
 
 class TestDemo(object):
