@@ -1,5 +1,7 @@
 syntax:glob
 
+_tutorial.html
+
 *.pyc
 .coverage*
 __pycache__
