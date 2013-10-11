@@ -1,12 +1,16 @@
-"""pyterm - terminal output formatting
+"""pyterm - terminal output style/positioning control
 
-http://???
+http://pythonhosted.org/pyterm
 
-Ouput formatting to a terminal with curses capabilities
+`pyterm` is tool designed to easy the use of colors,
+formatting and positioning of text in a terminal without
+the use of `curses`.
 
+Ouput formatting to a terminal with curses capabilities.
 Curses mode (curses.initwin) is not used.
-It controls color, text attributes (bold, inverse,...) and
-cursor position.
+
+The idea to use curses to get terminfo was taken from
+blessings [https://pypi.python.org/pypi/blessings/]
 
 references:
 
@@ -18,7 +22,7 @@ Copyright (c) 2013 Eduardo Naufel Schettino
 
 """
 
-__version__ = (0, 1, 'dev')
+__version__ = (0, 1, 0)
 
 
 

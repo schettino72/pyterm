@@ -41,19 +41,20 @@ def task_coverage():
 def task_docs():
     yield {
         'name': 'terminal',
-        'actions': ['python ddemo.py | ansi2html --partial --scheme=xterm > tutorial.html'],
+        'actions': ['python ddemo.py | ansi2html --partial --scheme=xterm > _tutorial.html'],
         'file_dep': ['pyterm.py', 'tutorial.py', 'ddemo.py',],
         'targets': ['_tutorial.html'],
         }
 
     def render_template():
         from ansi2html import Ansi2HTMLConverter
+
         with open('index.tmpl', 'r') as f: template = f.read()
         with open('_tutorial.html', 'r') as f: terminal = f.read()
         header = Ansi2HTMLConverter(scheme='xterm').produce_headers()
         with open('index.html', 'w') as html:
             html.write(template.format(
-                header=header,
+                ansi2html_head=header,
                 terminal=terminal))
 
     yield {

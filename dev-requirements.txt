@@ -1,3 +1,4 @@
+pyflakes
 pytest
 coverage
 pytest-cov
