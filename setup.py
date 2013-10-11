@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 
 from distutils.core import setup
-
+#from setuptools import setup # to upload docs
 
 long_description = """
 `pyterm` is tool designed to easy the use of colors,

@@ -52,7 +52,7 @@ def task_docs():
         with open('index.tmpl', 'r') as f: template = f.read()
         with open('_tutorial.html', 'r') as f: terminal = f.read()
         header = Ansi2HTMLConverter(scheme='xterm').produce_headers()
-        with open('index.html', 'w') as html:
+        with open('docs/index.html', 'w') as html:
             html.write(template.format(
                 ansi2html_head=header,
                 terminal=terminal))
@@ -61,5 +61,49 @@ def task_docs():
         'name': 'page',
         'file_dep': ['index.tmpl', '_tutorial.html'],
         'actions': [render_template],
-        'targets': ['index.html'],
+        'targets': ['docs/index.html'],
         }
+
+
+
+
+
+
+
+
+
+
+
+################### dist
+
+
+def task_revision():
+    """create file with repo rev number"""
+    return {'actions': ["hg tip --template '{rev}:{node}' > revision.txt"]}
+
+def task_manifest():
+    """create manifest file for distutils """
+
+    # create manifest will all files under version control without .hg* files
+    cmd = """hg manifest | grep -vE ".*\.hg.*" > MANIFEST """
+    cmd2 = "echo 'revision.txt' >> MANIFEST"
+    return {'actions': [cmd, cmd2]}
+
+def task_sdist():
+    """create source dist package"""
+    return {'actions': ["python setup.py sdist"],
+            'task_dep': ['revision', 'manifest'],
+            }
+
+def task_pypi():
+    """upload package to pypi"""
+    return {'actions': ["python setup.py sdist upload"],
+            'task_dep': ['revision', 'manifest'],
+            }
+
+def task_site_upload():
+    """upload generated site to pythonhosted.org"""
+    # need to manually edit setup.py to use setuptools
+    return {'actions': ["python setup.py upload_docs --upload-dir docs"],
+            'file_dep': ['docs/index.html'],
+            }
