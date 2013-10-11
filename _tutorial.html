@@ -1,0 +1,110 @@
+<span class="ansi1">&gt;&gt;&gt; # Color manipulation tutorial
+</span><span class="ansi1">&gt;&gt;&gt;
+</span><span class="ansi1">&gt;&gt;&gt; from pyterm import Term, escape
+</span><span class="ansi1">&gt;&gt;&gt;
+</span><span class="ansi1">&gt;&gt;&gt; # create a terminal instance
+</span><span class="ansi1">&gt;&gt;&gt; term = Term()
+</span><span class="ansi1">&gt;&gt;&gt;
+</span><span class="ansi1">&gt;&gt;&gt; # you can check the code for a capability in your terminal
+</span><span class="ansi1">&gt;&gt;&gt; print(escape(term.codes['BLUE']))
+</span>\x1b[34m
+<span class="ansi1">&gt;&gt;&gt; print(escape(term['BLUE']))
+</span>\x1b[34m
+<span class="ansi1">&gt;&gt;&gt;
+</span><span class="ansi1">&gt;&gt;&gt; # and check all the available capabilities
+</span><span class="ansi1">&gt;&gt;&gt; print(term.codes.keys())
+</span>['REVERSE', 'NORMAL', 'DEFAULT', 'YELLOW', 'DOWN', 'CLEAR_SCREEN', 'BG_WHITE', 'GREEN', 'BG_YELLOW', 'CYAN', 'RED', 'BG_BLACK', 'BG_RED', 'A_BG_COLOR', 'BLACK', 'UNDERLINE', 'A_COLOR', 'LEFT', 'BOLD', 'BG_MAGENTA', 'WHITE', 'BG_GREEN', 'BLUE', 'RIGHT', 'CLEAR_EOL', 'UP', 'BG_CYAN', 'CLEAR_EOS', 'BOL', 'MAGENTA', 'BG_BLUE']
+<span class="ansi1">&gt;&gt;&gt;
+</span><span class="ansi1">&gt;&gt;&gt; # to print something call your terminal with the desired string
+</span><span class="ansi1">&gt;&gt;&gt; term('a string in normal colors\n')
+</span>a string in normal colors
+<span class="ansi1">&gt;&gt;&gt;
+</span><span class="ansi1">&gt;&gt;&gt; # to add a color access the capability name as a property
+</span><span class="ansi1">&gt;&gt;&gt; term.YELLOW('a yellow line\n')
+</span><span class="ansi33">a yellow line
+</span><span class="ansi1">&gt;&gt;&gt;
+</span><span class="ansi1">&gt;&gt;&gt; # note how the colors are reset after any ouput
+</span><span class="ansi1">&gt;&gt;&gt; term('again in normal colors\n')
+</span>again in normal colors
+<span class="ansi1">&gt;&gt;&gt;
+</span><span class="ansi1">&gt;&gt;&gt; # you can chain adding codes and output to a stream
+</span><span class="ansi1">&gt;&gt;&gt; term.BOLD.BG_MAGENTA.GREEN("bit of green").UNDERLINE.RED(" and red\n")
+</span><span class="ansi1"></span><span class="ansi1 ansi45"></span><span class="ansi1 ansi32 ansi45">bit of green</span><span class="ansi4"></span><span class="ansi4 ansi31"> and red
+</span><span class="ansi1">&gt;&gt;&gt;
+</span><span class="ansi1">&gt;&gt;&gt; # you can create new named "styles" combining different codes
+</span><span class="ansi1">&gt;&gt;&gt; term.set_style('ERROR', ['RED', 'UNDERLINE'])
+</span><span class="ansi1">&gt;&gt;&gt; term.ERROR('fail\n')
+</span><span class="ansi31"></span><span class="ansi4 ansi31">fail
+</span><span class="ansi1">&gt;&gt;&gt;
+</span><span class="ansi1">&gt;&gt;&gt; # by default every output is flushed, you can disable that with a parameter
+</span><span class="ansi1">&gt;&gt;&gt; term.GREEN('part one -&gt; \n', flush=False).GREEN('part two \n')
+</span><span class="ansi32">part one -&gt; 
+</span><span class="ansi32">part two 
+</span><span class="ansi1">&gt;&gt;&gt;
+</span><span class="ansi1">&gt;&gt;&gt; # the default colors can be configured on terminal creation
+</span><span class="ansi1">&gt;&gt;&gt; term2 = Term(start_code=('BLUE', 'BOLD'))
+</span><span class="ansi1">&gt;&gt;&gt; term2('this is the default font\n')
+</span><span class="ansi34"></span><span class="ansi1 ansi34">this is the default font
+</span><span class="ansi1">&gt;&gt;&gt; term2.NORMAL.RED('a bit of red\n')
+</span><span class="ansi34"></span><span class="ansi1 ansi34"></span><span class="ansi31">a bit of red
+</span><span class="ansi1">&gt;&gt;&gt; term2('back to the default (blue)\n')
+</span><span class="ansi34"></span><span class="ansi1 ansi34">back to the default (blue)
+</span><span class="ansi1">&gt;&gt;&gt;
+</span><span class="ansi1">&gt;&gt;&gt; # by default the stream is sent to stdout (sys.stdout)
+</span><span class="ansi1">&gt;&gt;&gt; # If the selected stream is not a tty all codes are disabled
+</span><span class="ansi1">&gt;&gt;&gt; with open('/tmp/pyt.txt', 'w') as my_file:
+</span><span class="ansi1">...     # make it hard
+</span><span class="ansi1">...     term3 = Term(stream=my_file)
+</span><span class="ansi1">...     term3.RED('ignore color when writting to file')
+</span><span class="ansi1">...
+</span><span class="ansi1">&gt;&gt;&gt; with open('/tmp/pyt.txt', 'r') as my_file:
+</span><span class="ansi1">...     print(my_file.read())
+</span><span class="ansi1">...
+</span>ignore color when writting to file
+<span class="ansi1">&gt;&gt;&gt;
+</span><span class="ansi1">&gt;&gt;&gt; # to force the use of colors use `color=True`
+</span><span class="ansi1">&gt;&gt;&gt; with open('/tmp/pyt.txt', 'w') as my_file:
+</span><span class="ansi1">...     # make it hard
+</span><span class="ansi1">...     term3 = Term(stream=my_file, color=True)
+</span><span class="ansi1">...     term3.RED('force color when writting to file')
+</span><span class="ansi1">...
+</span><span class="ansi1">&gt;&gt;&gt; with open('/tmp/pyt.txt', 'r') as my_file:
+</span><span class="ansi1">...     print(my_file.read())
+</span><span class="ansi1">...
+</span><span class="ansi31">force color when writting to file</span>
+<span class="ansi1">&gt;&gt;&gt;
+</span><span class="ansi1">&gt;&gt;&gt; # you can also force disable the use of colors
+</span><span class="ansi1">&gt;&gt;&gt; term4 = Term(color=False)
+</span><span class="ansi1">&gt;&gt;&gt; term4.RED('dont use colors!\n')
+</span>dont use colors!
+<span class="ansi1">&gt;&gt;&gt;
+</span><span class="ansi1">&gt;&gt;&gt; # check the demo to see the colors and available capabilities
+</span><span class="ansi1">&gt;&gt;&gt; term.demo()
+</span><span class="inv_background inv_foreground">
+                      ANSI COLORS                       
+</span><span class="ansi30">BLACK   </span> <span class="ansi30"></span><span class="ansi1 ansi30">bold</span> <span class="ansi30"></span><span class="inv30 inv_foreground">reverse</span> <span class="ansi30"></span><span class="ansi4 ansi30">underline</span> <span class="ansi30"></span><span class="ansi30 ansi43">bg_yellow</span> <span class="ansi30"></span><span class="inv30 inv_foreground"></span><span class="ansi1 inv30 inv_foreground">bold+reverse</span> 
+<span class="ansi31">RED     </span> <span class="ansi31"></span><span class="ansi1 ansi31">bold</span> <span class="ansi31"></span><span class="inv31 inv_foreground">reverse</span> <span class="ansi31"></span><span class="ansi4 ansi31">underline</span> <span class="ansi31"></span><span class="ansi31 ansi43">bg_yellow</span> <span class="ansi31"></span><span class="inv31 inv_foreground"></span><span class="ansi1 inv31 inv_foreground">bold+reverse</span> 
+<span class="ansi32">GREEN   </span> <span class="ansi32"></span><span class="ansi1 ansi32">bold</span> <span class="ansi32"></span><span class="inv32 inv_foreground">reverse</span> <span class="ansi32"></span><span class="ansi4 ansi32">underline</span> <span class="ansi32"></span><span class="ansi32 ansi43">bg_yellow</span> <span class="ansi32"></span><span class="inv32 inv_foreground"></span><span class="ansi1 inv32 inv_foreground">bold+reverse</span> 
+<span class="ansi33">YELLOW  </span> <span class="ansi33"></span><span class="ansi1 ansi33">bold</span> <span class="ansi33"></span><span class="inv33 inv_foreground">reverse</span> <span class="ansi33"></span><span class="ansi4 ansi33">underline</span> <span class="ansi33"></span><span class="ansi33 ansi43">bg_yellow</span> <span class="ansi33"></span><span class="inv33 inv_foreground"></span><span class="ansi1 inv33 inv_foreground">bold+reverse</span> 
+<span class="ansi34">BLUE    </span> <span class="ansi34"></span><span class="ansi1 ansi34">bold</span> <span class="ansi34"></span><span class="inv34 inv_foreground">reverse</span> <span class="ansi34"></span><span class="ansi4 ansi34">underline</span> <span class="ansi34"></span><span class="ansi34 ansi43">bg_yellow</span> <span class="ansi34"></span><span class="inv34 inv_foreground"></span><span class="ansi1 inv34 inv_foreground">bold+reverse</span> 
+<span class="ansi35">MAGENTA </span> <span class="ansi35"></span><span class="ansi1 ansi35">bold</span> <span class="ansi35"></span><span class="inv35 inv_foreground">reverse</span> <span class="ansi35"></span><span class="ansi4 ansi35">underline</span> <span class="ansi35"></span><span class="ansi35 ansi43">bg_yellow</span> <span class="ansi35"></span><span class="inv35 inv_foreground"></span><span class="ansi1 inv35 inv_foreground">bold+reverse</span> 
+<span class="ansi36">CYAN    </span> <span class="ansi36"></span><span class="ansi1 ansi36">bold</span> <span class="ansi36"></span><span class="inv36 inv_foreground">reverse</span> <span class="ansi36"></span><span class="ansi4 ansi36">underline</span> <span class="ansi36"></span><span class="ansi36 ansi43">bg_yellow</span> <span class="ansi36"></span><span class="inv36 inv_foreground"></span><span class="ansi1 inv36 inv_foreground">bold+reverse</span> 
+<span class="ansi37">WHITE   </span> <span class="ansi37"></span><span class="ansi1 ansi37">bold</span> <span class="ansi37"></span><span class="inv37 inv_foreground">reverse</span> <span class="ansi37"></span><span class="ansi4 ansi37">underline</span> <span class="ansi37"></span><span class="ansi37 ansi43">bg_yellow</span> <span class="ansi37"></span><span class="inv37 inv_foreground"></span><span class="ansi1 inv37 inv_foreground">bold+reverse</span> 
+
+<span class="ansi1"></span><span class="ansi1 inv_background inv_foreground">| NAME            | CODE       | VALUE           |
+</span>| BOL             | cr         | \r              |
+| UP              | cuu1       | \x1b[A          |
+| DOWN            | cud1       | \n              |
+| LEFT            | cub1       | \x08            |
+| RIGHT           | cuf1       | \x1b[C          |
+| CLEAR_SCREEN    | clear      | \x1b[H\x1b[2J   |
+| CLEAR_EOL       | el         | \x1b[K          |
+| CLEAR_EOS       | ed         | \x1b[J          |
+| BOLD            | bold       | \x1b[1m         |
+| REVERSE         | rev        | \x1b[7m         |
+| UNDERLINE       | smul       | \x1b[4m         |
+| NORMAL          | sgr0       | \x1b[m          |
+| A_COLOR         | setaf      | \x1b[3%p1%dm    |
+| A_BG_COLOR      | setab      | \x1b[4%p1%dm    |
+<span class="inv_background inv_foreground">--------------------------------------------------
+</span>

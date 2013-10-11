@@ -146,7 +146,7 @@ class CapTerm(object):
             getattr(self, color).REVERSE('reverse')(' ')
             getattr(self, color).UNDERLINE('underline')(' ')
             getattr(self, color).BG_YELLOW('bg_yellow')(' ')
-            getattr(self, color).UNDERLINE.BOLD('bold+underline')(' ')
+            getattr(self, color).REVERSE.BOLD('bold+reverse')(' ')
             self('\n')
 
         line_fmt = "| {:15} | {:10} | {:15} |\n"

@@ -3,33 +3,33 @@
 from pyterm import Term, escape
 
 # create a terminal instance
-myterm = Term()
+term = Term()
 
 # you can check the code for a capability in your terminal
-print(escape(myterm.codes['BLUE']))
-print(escape(myterm['BLUE']))
+print(escape(term.codes['BLUE']))
+print(escape(term['BLUE']))
 
 # and check all the available capabilities
-print(myterm.codes.keys())
+print(term.codes.keys())
 
 # to print something call your terminal with the desired string
-myterm('a string in normal colors\n')
+term('a string in normal colors\n')
 
 # to add a color access the capability name as a property
-myterm.YELLOW('a yellow line\n')
+term.YELLOW('a yellow line\n')
 
 # note how the colors are reset after any ouput
-myterm('again in normal colors\n')
+term('again in normal colors\n')
 
 # you can chain adding codes and output to a stream
-myterm.BG_MAGENTA.GREEN("bit of green").UNDERLINE.RED(" and red\n")
+term.BOLD.BG_MAGENTA.GREEN("bit of green").UNDERLINE.RED(" and red\n")
 
 # you can create new named "styles" combining different codes
-myterm.set_style('ERROR', ['RED', 'UNDERLINE'])
-myterm.ERROR('fail\n')
+term.set_style('ERROR', ['RED', 'UNDERLINE'])
+term.ERROR('fail\n')
 
 # by default every output is flushed, you can disable that with a parameter
-myterm.GREEN('part one -> ', flush=False)
+term.GREEN('part one -> \n', flush=False).GREEN('part two \n')
 
 # the default colors can be configured on terminal creation
 term2 = Term(start_code=('BLUE', 'BOLD'))
@@ -57,3 +57,6 @@ with open('/tmp/pyt.txt', 'r') as my_file:
 # you can also force disable the use of colors
 term4 = Term(color=False)
 term4.RED('dont use colors!\n')
+
+# check the demo to see the colors and available capabilities
+term.demo()
