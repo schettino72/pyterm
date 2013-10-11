@@ -1,2 +1,1 @@
-. FakeTerm to be used when curses is not available
 . docs - use (https://github.com/ralphbean/ansi2html)

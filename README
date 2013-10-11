@@ -1,0 +1,10 @@
+
+FILES
+=======
+
+ * pyterm.py -> pyterm implementaion
+ * test_pyterm.py -> unit-test (uses py.test)
+ * dodo.py -> development tasks management (uses doit)
+ * tutorial.py -> sample code demonstrating basic features
+ * ddemo.py -> generate docs from tutorial
+
