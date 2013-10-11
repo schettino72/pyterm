@@ -3,14 +3,14 @@
 from distutils.core import setup
 
 
-long_description = long_description = """
+long_description = """
 `pyterm` is tool designed to easy the use of colors,
 formatting and positioning of text in a terminal without
 the use of `curses`.
 
-website/docs: `<http://pythonhosted.org/pyterm>`_
+website/docs: `http://pythonhosted.org/pyterm <http://pythonhosted.org/pyterm>`_
 
-source/issues: `<https://bitbucket.org/schettino72/pyterm>`_
+source/issues: `https://bitbucket.org/schettino72/pyterm <https://bitbucket.org/schettino72/pyterm>`_
 """
 
 
