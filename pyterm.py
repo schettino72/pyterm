@@ -22,11 +22,9 @@ Copyright (c) 2013 Eduardo Naufel Schettino
 
 """
 
-__version__ = (0, 1, 0)
+__version__ = (0, 2, 'dev0')
 
 
-
-import curses
 import sys
 
 
@@ -35,9 +33,11 @@ if sys.version_info >= (3, 0): # pragma: nocover
     _ = lambda s: s.decode('utf-8')
     escape = lambda x: x.decode('ascii').\
         encode('unicode_escape').decode('utf-8')
+    int2byte = lambda x: bytes(str(x), 'ascii')
 else:
     _ = lambda s: s
     escape = lambda x: x.encode('string_escape')
+    int2byte = lambda x: str(x)
 
 # pair with friendly-name / capability-name
 CAPABILITY = [
@@ -68,8 +68,58 @@ ANSI_COLORS = ['BLACK', 'RED', 'GREEN', 'YELLOW',
                'BLUE', 'MAGENTA', 'CYAN', 'WHITE']
 
 
+#http://en.wikipedia.org/wiki/ANSI_escape_code
+ANSI_ESC = b'\x1b['
+ANSI_CODES = [
+    # cursor movement
+    ('BOL', b'G'),   # begining of line
+    ('UP', b'A'),
+    ('DOWN', b'B'),
+    ('LEFT', b'D'),
+    ('RIGHT', b'C'),
 
-class CapTerm(object):
+    # clear
+    ('CLEAR_SCREEN', b'H' + ANSI_ESC + b'2J'),
+    ('CLEAR_EOL', b'K'),
+    ('CLEAR_EOS', b'J'), # clear to end of display
+
+    # write mode
+    ('BOLD', b'1m'),
+    ('REVERSE', b'7m'),
+    ('UNDERLINE', b'4m'),
+    ('NORMAL', b'm'),
+    ]
+
+
+def get_codes_curses(fd):
+    """get capabilities and color codes using the curses module"""
+    import curses
+    curses.setupterm(None, fd)
+    codes = dict((name, curses.tigetstr(code)) for name, code in CAPABILITY)
+    for index, name in enumerate(ANSI_COLORS):
+        codes[name] = curses.tparm(codes['A_COLOR'], index)
+        codes['BG_'+name] = curses.tparm(codes['A_BG_COLOR'], index)
+    return codes
+
+def get_codes_dumb():
+    """get all codes as empty string"""
+    codes = dict((name, b'') for name, _ in CAPABILITY)
+    for name in ANSI_COLORS:
+        codes[name] = b''
+        codes['BG_'+name] = b''
+    return codes
+
+def get_codes_ansi():
+    """get all ANSI codes"""
+    codes = dict((name, ANSI_ESC + code) for name, code in ANSI_CODES)
+    for index, name in enumerate(ANSI_COLORS):
+        codes[name] = ANSI_ESC + b'3' + int2byte(index) + b'm'
+        codes['BG_'+name] = ANSI_ESC + b'4' + int2byte(index) + b'm'
+    return codes
+
+
+
+class Term(object):
     """Ouput formatting to a terminal with curses capabilities
 
     @ivar codes: (dict) key: capability-name as exposed by API
@@ -77,7 +127,8 @@ class CapTerm(object):
 
     @ivar _buffer: content to be sent to terminal
     """
-    def __init__(self, stream=None, start_code=('NORMAL',) ):
+    def __init__(self, stream=None, start_code=('NORMAL',),
+                 code=None, use_colors=None):
         """
         @ivar stream: where the output will be written to (default: sys.stdout)
         @param start_code: sequence of codes to be appended to the
@@ -85,20 +136,24 @@ class CapTerm(object):
                            default: []
         """
         self.stream = stream or sys.stdout
-        self.codes = self.get_term_codes(self.stream.fileno())
+        # self.code is one of: curses, ansi, dumb
+        self.code, self.codes = self.get_codes(code, use_colors)
         self.set_style('DEFAULT', start_code)
         self._buffer = _(self['DEFAULT'])
 
-
-    @staticmethod
-    def get_term_codes(fd=None):
-        """get capabilities and color codes"""
-        curses.setupterm(None, fd)
-        codes = dict((name, curses.tigetstr(code)) for name, code in CAPABILITY)
-        for index, name in enumerate(ANSI_COLORS):
-            codes[name] = curses.tparm(codes['A_COLOR'], index)
-            codes['BG_'+name] = curses.tparm(codes['A_BG_COLOR'], index)
-        return codes
+    def get_codes(self, code=None, use_colors=None):
+        """select source of codes (curses, ansi, dumb) and set self.codes"""
+        if (use_colors is True or
+            (use_colors is None and self.stream.isatty())):
+            if code=='ansi':
+                return 'ansi', get_codes_ansi()
+            else:
+                try:
+                    return 'curses', get_codes_curses(self.stream.fileno())
+                except:
+                    return 'ansi', get_codes_ansi()
+        else:
+            return 'dumb', get_codes_dumb()
 
 
     def __getitem__(self, key):
@@ -127,12 +182,20 @@ class CapTerm(object):
     @staticmethod
     def cols():
         """@return (int) number of columns on terminal window"""
-        return curses.tigetnum('cols')
+        try:
+            import curses
+            return curses.tigetnum('cols')
+        except:
+            pass
 
     @staticmethod
     def lines():
         """@return (int) number of lines on terminal window"""
-        return curses.tigetnum('lines')
+        try:
+            import curses
+            return curses.tigetnum('lines')
+        except:
+            pass
 
     def set_style(self, name, args):
         """set/create a new capability
@@ -161,29 +224,6 @@ class CapTerm(object):
         self.REVERSE('-' * 50 + '\n')
         self('\n')
 
-
-
-class DumbTerm(CapTerm):
-    """Same interface as Term but for a stream without any capability"""
-
-    @staticmethod
-    def get_term_codes(fd=None):
-        """get capabilities and color codes"""
-        curses.setupterm(None, fd)
-        codes = dict((name, b'') for name, _ in CAPABILITY)
-        for name in ANSI_COLORS:
-            codes[name] = b''
-            codes['BG_'+name] = b''
-        return codes
-
-
-class Term(object):
-    def __new__(self, stream=None, start_code=('NORMAL',), color=None):
-        stream = stream or sys.stdout
-        if color is True or (color is None and stream.isatty()):
-            return CapTerm(stream, start_code)
-        else:
-            return DumbTerm(stream, start_code)
 
 
 
