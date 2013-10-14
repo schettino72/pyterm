@@ -40,6 +40,10 @@ term.ERROR('fail\n')
 term.GREEN('part one -> \n', flush=False).GREEN('part two \n')
 
 
+# it also possible to get information on the terminal window size
+print("Columns:{}\n Lines:{}".format(term.cols(), term.lines()))
+
+
 # the default colors can be configured on terminal creation
 term2 = Term(start_code=('BLUE', 'BOLD'))
 term2('this is the default font\n')
@@ -58,15 +62,23 @@ with open('/tmp/pyt.txt', 'r') as my_file:
 
 # to force the use of colors use `color=True`
 with open('/tmp/pyt.txt', 'w') as my_file:
-    term3 = Term(stream=my_file, color=True)
+    term3 = Term(stream=my_file, use_colors=True)
     term3.RED('force color when writting to file')
 with open('/tmp/pyt.txt', 'r') as my_file:
     print(my_file.read())
 
 
 # you can also force disable the use of colors
-term4 = Term(color=False)
+term4 = Term(use_colors=False)
 term4.RED('dont use colors!\n')
+
+
+# by default pyterm will use the curses module to find out
+# the capabilities/codes supported by your terminal.
+# If the curses module is not available it will fall-back to use ANSI codes.
+# You can also force the use of ANSI codes setting the paramerer 'code'
+term5 = Term(code='ansi')
+print(escape(term5['BOL']))
 
 
 # check the demo to see the colors and available capabilities

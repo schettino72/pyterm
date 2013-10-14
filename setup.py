@@ -16,7 +16,7 @@ source/issues: `https://bitbucket.org/schettino72/pyterm <https://bitbucket.org/
 
 setup(name = 'pyterm',
       description = 'pyterm - terminal output style/positioning control',
-      version = '0.2.dev0',
+      version = '0.2.0',
       license = 'MIT',
       author = 'Eduardo Naufel Schettino',
       author_email = 'schettino72@gmail.com',

@@ -123,5 +123,9 @@ class TestTerm(object):
 
 
 class TestDemo(object):
-    def test_color(self, term):
+    def test_color(self):
+        tty = StringIO()
+        tty.fileno = lambda : 0 # fake whatever fileno
+        tty.isatty = lambda : True
+        term = Term(stream=tty)
         term.demo()

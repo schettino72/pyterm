@@ -4,11 +4,10 @@ http://pythonhosted.org/pyterm
 
 `pyterm` is tool designed to easy the use of colors,
 formatting and positioning of text in a terminal without
-the use of `curses`.
+the use of `curses` mode (curses.initwin).
 
-Ouput formatting to a terminal with curses capabilities.
-Curses mode (curses.initwin) is not used.
-
+By default the python `curses` module is used to get code info from the terminal.
+If `curses` is not available ANSI codes are used.
 The idea to use curses to get terminfo was taken from
 blessings [https://pypi.python.org/pypi/blessings/]
 
@@ -22,7 +21,7 @@ Copyright (c) 2013 Eduardo Naufel Schettino
 
 """
 
-__version__ = (0, 2, 'dev0')
+__version__ = (0, 2, 0)
 
 
 import sys
@@ -224,11 +223,12 @@ class Term(object):
 
         line_fmt = "| {:15} | {:10} | {:15} |\n"
         self('\n')
-        self.BOLD.REVERSE(line_fmt.format('NAME', 'CODE', 'VALUE'))
-        for name, cap_name in CAPABILITY:
-            self(line_fmt.format(name, cap_name, escape(self[name])))
-        self.REVERSE('-' * 50 + '\n')
-        self('\n')
+        if self.code == 'curses':
+            self.BOLD.REVERSE(line_fmt.format('NAME', 'CODE', 'VALUE'))
+            for name, cap_name in CAPABILITY:
+                self(line_fmt.format(name, cap_name, escape(self[name])))
+            self.REVERSE('-' * 50 + '\n')
+            self('\n')
 
 
 

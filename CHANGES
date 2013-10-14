@@ -2,8 +2,8 @@
 Changes
 =======
 
-0.2.0
-================
+0.2.0 (2013-10-14)
+=====================
 
  - added option to force the use of ANSI codes
  - if curses not available fall back to use of ANSI codes

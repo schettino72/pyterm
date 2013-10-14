@@ -7,9 +7,16 @@
 
 <h1>pyterm - terminal output style/positioning control</h1>
 
-<p><em>pyterm</em> is tool designed to easy the use of colors,
+<p><em>pyterm</em> is a tool designed to easy the use of colors,
 formatting and positioning of text in a terminal without
-the use of <em>curses</em>.
+the use of <em>curses</em> mode (curses.initwin).
+
+<p>By default the python <em>curses</em> module is used to get code info
+from the terminal.
+If <em>curses</em> is not available ANSI codes are used.
+The idea to use curses to get terminfo was taken from
+<a href="https://pypi.python.org/pypi/blessings/">blessings</a>.
+</p>
 
 <p>website/docs: <a href="http://pythonhosted.org/pyterm">http://pythonhosted.org/pyterm</a></p>
 

@@ -1014,9 +1014,16 @@
 
 <h1>pyterm - terminal output style/positioning control</h1>
 
-<p><em>pyterm</em> is tool designed to easy the use of colors,
+<p><em>pyterm</em> is a tool designed to easy the use of colors,
 formatting and positioning of text in a terminal without
-the use of <em>curses</em>.
+the use of <em>curses</em> mode (curses.initwin).
+
+<p>By default the python <em>curses</em> module is used to get code info
+from the terminal.
+If <em>curses</em> is not available ANSI codes are used.
+The idea to use curses to get terminfo was taken from
+<a href="https://pypi.python.org/pypi/blessings/">blessings</a>.
+</p>
 
 <p>website/docs: <a href="http://pythonhosted.org/pyterm">http://pythonhosted.org/pyterm</a></p>
 
@@ -1076,6 +1083,12 @@ the use of <em>curses</em>.
 </span><span class="ansi32">part two 
 </span><span class="ansi1">&gt;&gt;&gt;
 </span><span class="ansi1">&gt;&gt;&gt;
+</span><span class="ansi1">&gt;&gt;&gt; # it also possible to get information on the terminal window size
+</span><span class="ansi1">&gt;&gt;&gt; print("Columns:{}\n Lines:{}".format(term.cols(), term.lines()))
+</span>Columns:94
+ Lines:29
+<span class="ansi1">&gt;&gt;&gt;
+</span><span class="ansi1">&gt;&gt;&gt;
 </span><span class="ansi1">&gt;&gt;&gt; # the default colors can be configured on terminal creation
 </span><span class="ansi1">&gt;&gt;&gt; term2 = Term(start_code=('BLUE', 'BOLD'))
 </span><span class="ansi1">&gt;&gt;&gt; term2('this is the default font\n')
@@ -1100,7 +1113,7 @@ the use of <em>curses</em>.
 </span><span class="ansi1">&gt;&gt;&gt;
 </span><span class="ansi1">&gt;&gt;&gt; # to force the use of colors use `color=True`
 </span><span class="ansi1">&gt;&gt;&gt; with open('/tmp/pyt.txt', 'w') as my_file:
-</span><span class="ansi1">...     term3 = Term(stream=my_file, color=True)
+</span><span class="ansi1">...     term3 = Term(stream=my_file, use_colors=True)
 </span><span class="ansi1">...     term3.RED('force color when writting to file')
 </span><span class="ansi1">...
 </span><span class="ansi1">&gt;&gt;&gt; with open('/tmp/pyt.txt', 'r') as my_file:
@@ -1110,9 +1123,18 @@ the use of <em>curses</em>.
 <span class="ansi1">&gt;&gt;&gt;
 </span><span class="ansi1">&gt;&gt;&gt;
 </span><span class="ansi1">&gt;&gt;&gt; # you can also force disable the use of colors
-</span><span class="ansi1">&gt;&gt;&gt; term4 = Term(color=False)
+</span><span class="ansi1">&gt;&gt;&gt; term4 = Term(use_colors=False)
 </span><span class="ansi1">&gt;&gt;&gt; term4.RED('dont use colors!\n')
 </span>dont use colors!
+<span class="ansi1">&gt;&gt;&gt;
+</span><span class="ansi1">&gt;&gt;&gt;
+</span><span class="ansi1">&gt;&gt;&gt; # by default pyterm will use the curses module to find out
+</span><span class="ansi1">&gt;&gt;&gt; # the capabilities/codes supported by your terminal.
+</span><span class="ansi1">&gt;&gt;&gt; # If the curses module is not available it will fall-back to use ANSI codes.
+</span><span class="ansi1">&gt;&gt;&gt; # You can also force the use of ANSI codes setting the paramerer 'code'
+</span><span class="ansi1">&gt;&gt;&gt; term5 = Term(code='ansi')
+</span><span class="ansi1">&gt;&gt;&gt; print(escape(term5['BOL']))
+</span>\x1b[G
 <span class="ansi1">&gt;&gt;&gt;
 </span><span class="ansi1">&gt;&gt;&gt;
 </span><span class="ansi1">&gt;&gt;&gt; # check the demo to see the colors and available capabilities

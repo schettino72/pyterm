@@ -7,7 +7,12 @@ pyterm - terminal output style/positioning control
 
 `pyterm` is tool designed to easy the use of colors,
 formatting and positioning of text in a terminal without
-the use of `curses`.
+the use of `curses` mode (curses.initwin).
+
+By default the python `curses` module is used to get code info from the terminal.
+If `curses` is not available ANSI codes are used.
+The idea to use curses to get terminfo was taken from
+blessings [https://pypi.python.org/pypi/blessings/]
 
 
 Project Details
