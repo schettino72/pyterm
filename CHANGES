@@ -6,8 +6,8 @@ Changes
 ================
 
  - added option to force the use of ANSI codes
- - if curses not available fall back to use ANSI codes
-
+ - if curses not available fall back to use of ANSI codes
+ - Term.lines() and Term.cols() use 'stty' when not using curses
 
 0.1.0 (2013-10-11)
 ======================

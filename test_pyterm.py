@@ -57,7 +57,7 @@ class TestTerm(object):
             term = Term(stream=my_stream, start_code=[])
             assert my_stream == term.stream
 
-    def test_get_codes(self):
+    def test_get_codes(self, monkeypatch):
         stream_no_tty = StringIO()
         stream_no_tty.fileno = lambda : 0 # fake whatever fileno
         stream_no_tty.isatty = lambda : False
@@ -73,7 +73,7 @@ class TestTerm(object):
         # use of ansi codes forced/no curses available
         assert 'ansi' == Term(stream=tty, code='ansi').code
         import curses
-        curses.tparm = lambda : 5/0
+        monkeypatch.setattr(curses, 'tparm', lambda : 5/0)
         assert 'ansi' == Term(stream=tty).code
 
     def test_get_code(self, term):
@@ -101,12 +101,25 @@ class TestTerm(object):
         term.BR('blue-red')
         assert '<DEFAULT><BLUE><BG_RED>blue-red<NORMAL>' == term.stream.getvalue()
 
-    def test_no_raise(self, term):
-        # no way to test this in any significant way
-        # if they dont raise an exception they are good enough
-        term.cols()
-        term.lines()
+    def test_lines_cols(self, monkeypatch):
+        # using curses
+        tty = StringIO()
+        tty.fileno = lambda : 0 # fake whatever fileno
+        tty.isatty = lambda : True
+        term = Term(stream=tty)
+        assert isinstance(term.cols(), int)
+        assert isinstance(term.lines(), int)
 
+        # curses not available gets None
+        import curses
+        monkeypatch.setattr(curses, 'tigetnum', lambda : 5/0)
+        assert None == term.cols()
+        assert None == term.lines()
+
+        # uses stty
+        term2 = Term(stream=tty, code='ansi')
+        assert isinstance(term2.cols(), int)
+        assert isinstance(term2.lines(), int)
 
 
 class TestDemo(object):

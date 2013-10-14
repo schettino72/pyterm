@@ -26,6 +26,7 @@ __version__ = (0, 2, 'dev0')
 
 
 import sys
+import subprocess
 
 
 # compatibility python2 and python3
@@ -133,7 +134,10 @@ class Term(object):
         @ivar stream: where the output will be written to (default: sys.stdout)
         @param start_code: sequence of codes to be appended to the
                            end of content on every write.
-                           default: []
+                           default: [('NORMAL', )]
+        @param code: use 'ansi' to use ANSI codes instead of quering
+                     capabilities with curses
+        @param use_colors: force enable/disable use of colors codes
         """
         self.stream = stream or sys.stdout
         # self.code is one of: curses, ansi, dumb
@@ -179,18 +183,20 @@ class Term(object):
             self._buffer = _(self['DEFAULT'])
         return self
 
-    @staticmethod
-    def cols():
+    def cols(self):
         """@return (int) number of columns on terminal window"""
+        if self.code != 'curses':
+            return int(subprocess.check_output(['stty', 'size']).split()[1])
         try:
             import curses
             return curses.tigetnum('cols')
         except:
             pass
 
-    @staticmethod
-    def lines():
+    def lines(self):
         """@return (int) number of lines on terminal window"""
+        if self.code != 'curses':
+            return int(subprocess.check_output(['stty', 'size']).split()[0])
         try:
             import curses
             return curses.tigetnum('lines')
