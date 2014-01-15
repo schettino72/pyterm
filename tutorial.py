@@ -30,6 +30,8 @@ term('again in normal colors\n')
 # you can chain codes and output to a stream
 term.BOLD.BG_MAGENTA.GREEN("bit of green").UNDERLINE.RED(" and red\n")
 
+# it is also possible to use python string formatting
+print("{BLUE}Hi {GREEN}{name}!".format(name='john', **term.codes))
 
 # you can create new named "styles" combining different codes
 term.set_style('ERROR', ['RED', 'UNDERLINE'])
