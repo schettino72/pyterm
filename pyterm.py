@@ -21,7 +21,7 @@ Copyright (c) 2013 Eduardo Naufel Schettino
 
 """
 
-__version__ = (0, 2, 0)
+__version__ = (0, 3, 'dev0')
 
 
 import sys
@@ -30,12 +30,11 @@ import subprocess
 
 # compatibility python2 and python3
 if sys.version_info >= (3, 0): # pragma: nocover
-    _ = lambda s: s.decode('utf-8')
-    escape = lambda x: x.decode('ascii').\
-        encode('unicode_escape').decode('utf-8')
+    decode = lambda s: s.decode('utf-8')
+    escape = lambda x: x.encode('unicode_escape').decode('utf-8')
     int2byte = lambda x: bytes(str(x), 'ascii')
 else:
-    _ = lambda s: s
+    decode = lambda s: s
     escape = lambda x: x.encode('string_escape')
     int2byte = lambda x: str(x)
 
@@ -141,8 +140,9 @@ class Term(object):
         self.stream = stream or sys.stdout
         # self.code is one of: curses, ansi, dumb
         self.code, self.codes = self.get_codes(code, use_colors)
+        self.codes = dict((k, decode(v)) for k, v in self.codes.items())
         self.set_style('DEFAULT', start_code)
-        self._buffer = _(self['DEFAULT'])
+        self._buffer = self['DEFAULT']
 
     def get_codes(self, code=None, use_colors=None):
         """select source of codes (curses, ansi, dumb) and set self.codes"""
@@ -169,22 +169,23 @@ class Term(object):
         """adds attribute code to buffer
         @return self (in order to allow chaining)
         """
-        self._buffer += _(self.codes[key])
+        self._buffer += self.codes[key]
         return self
 
     def __call__(self, content='', flush=True):
         """adds given content & default_end to buffer, writes buffer if 'flush
         @return self (in order to allow chaining)
         """
-        self._buffer += content + _(self['NORMAL'])
+        self._buffer += content + self['NORMAL']
         if flush:
             self.stream.write(self._buffer)
-            self._buffer = _(self['DEFAULT'])
+            self._buffer = self['DEFAULT']
         return self
 
     def cols(self):
         """@return (int) number of columns on terminal window"""
         if self.code != 'curses':
+            # FIXME py3.3 has a function with this functionality
             return int(subprocess.check_output(['stty', 'size']).split()[1])
         try:
             import curses
@@ -206,8 +207,7 @@ class Term(object):
         """set/create a new capability
         mostly used to create named sequence of codes
         """
-        self.codes[name] = b''.join([(self[a]) for a in args])
-
+        self.codes[name] = ''.join([(self[a]) for a in args])
 
     def demo(self):
         """demo colors and capabilities of your terminal """

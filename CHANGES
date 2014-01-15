@@ -2,6 +2,12 @@
 Changes
 =======
 
+0.3.0
+=======
+
+ - Term.codes values are saved as string (not bytes in python3)
+ - rename `pyterm._` to `pyterm.decode`
+
 0.2.0 (2013-10-14)
 =====================
 

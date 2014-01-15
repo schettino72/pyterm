@@ -5,7 +5,8 @@ except: # pragma: no cover
      # py3
     from io import StringIO
 
-from pyterm import Term, get_codes_curses, get_codes_dumb, get_codes_ansi
+from pyterm import Term, decode
+from pyterm import get_codes_curses, get_codes_dumb, get_codes_ansi
 
 
 
@@ -22,6 +23,7 @@ def pytest_funcarg__term(request):
                 term.codes[name] = '<{}>'.format(name)
         term.codes['NORMAL'] = b'<NORMAL>'
         term.codes['DEFAULT'] = b'<DEFAULT>'
+        term.codes = dict((k, decode(v)) for k, v in term.codes.items())
         term() # flush initial streeam that contains real code
         stream.seek(0)
         stream.truncate(0)
@@ -77,8 +79,8 @@ class TestTerm(object):
         assert 'ansi' == Term(stream=tty).code
 
     def test_get_code(self, term):
-        assert b"<BLUE>" == term['BLUE']
-        assert b"<UP>" == term['UP']
+        assert "<BLUE>" == term['BLUE']
+        assert "<UP>" == term['UP']
 
     def test_write_code(self, term):
         assert term == term.BLUE
