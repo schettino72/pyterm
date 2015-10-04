@@ -29,11 +29,11 @@ import subprocess
 
 
 # compatibility python2 and python3
-if sys.version_info >= (3, 0): # pragma: nocover
+if sys.version_info >= (3, 0):
     decode = lambda s: s.decode('utf-8')
     escape = lambda x: x.encode('unicode_escape').decode('utf-8')
     int2byte = lambda x: bytes(str(x), 'ascii')
-else:
+else:  # pragma: nocover
     decode = lambda s: s
     escape = lambda x: x.encode('string_escape')
     int2byte = lambda x: str(x)

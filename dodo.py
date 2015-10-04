@@ -33,7 +33,7 @@ def task_test():
 
 def task_coverage():
     return {
-        'actions': ['py.test --cov pyterm.py --cov test_pyterm.py --cov-report term-missing'],
+        'actions': ['py.test --cov pyterm --cov test_pyterm.py --cov-report term-missing'],
         'verbosity': 2,
         }
 

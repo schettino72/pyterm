@@ -5,8 +5,9 @@ except: # pragma: no cover
      # py3
     from io import StringIO
 
-from pyterm import Term, decode
-from pyterm import get_codes_curses, get_codes_dumb, get_codes_ansi
+from pyterm import Term
+from pyterm.pyterm import decode
+from pyterm.pyterm import get_codes_curses, get_codes_dumb, get_codes_ansi
 
 
 
@@ -17,9 +18,9 @@ def pytest_funcarg__term(request):
         term = Term(stream=stream)
         # replace real codes with <code-name>
         for name in term.codes.keys():
-            if sys.version_info >= (3, 0): # pragma: nocover
+            if sys.version_info >= (3, 0):
                 term.codes[name] = bytes('<{}>'.format(name), 'ascii')
-            else:
+            else:  # pragma: nocover
                 term.codes[name] = '<{}>'.format(name)
         term.codes['NORMAL'] = b'<NORMAL>'
         term.codes['DEFAULT'] = b'<DEFAULT>'
