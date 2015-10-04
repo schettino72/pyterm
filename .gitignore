@@ -1,11 +1,9 @@
-syntax:glob
-
 _tutorial.html
 
 *.pyc
 .coverage*
 __pycache__
-.doit.db
+.doit.db*
 
 
 dist
