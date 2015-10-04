@@ -7,6 +7,7 @@ Changes
 
  - Term.codes values are saved as string (not bytes in python3)
  - rename `pyterm._` to `pyterm.decode`
+ - add method `Pyterm.format` like `string.format`
 
 0.2.0 (2013-10-14)
 =====================

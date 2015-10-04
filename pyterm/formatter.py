@@ -1,5 +1,8 @@
-# Formatter class copied from python 3.5
-# revision ae77dfb3b3c68061a316faf86fc911da2c4a3d54 2015-09-29
+# Formatter class copied from python 3.5 cpython/Lib/string.py
+# revision 2015-09-29
+# https://github.com/python/cpython/blob/ae77dfb3b3c68061a316faf86fc911da2c4a3d54/Lib/string.py
+
+import _string
 
 
 class Formatter:

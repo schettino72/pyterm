@@ -19,12 +19,12 @@ def pytest_funcarg__term(request):
         # replace real codes with <code-name>
         for name in term.codes.keys():
             if sys.version_info >= (3, 0):
-                term.codes[name] = bytes('<{}>'.format(name), 'ascii')
+                term.codes[name] = '<{}>'.format(name)
             else:  # pragma: nocover
                 term.codes[name] = '<{}>'.format(name)
-        term.codes['NORMAL'] = b'<NORMAL>'
-        term.codes['DEFAULT'] = b'<DEFAULT>'
-        term.codes = dict((k, decode(v)) for k, v in term.codes.items())
+        term.codes['NORMAL'] = '<NORMAL>'
+        term.codes['DEFAULT'] = '<DEFAULT>'
+        term.codes = dict((k, v) for k, v in term.codes.items())
         term() # flush initial streeam that contains real code
         stream.seek(0)
         stream.truncate(0)
@@ -103,6 +103,17 @@ class TestTerm(object):
         assert '' == term.stream.getvalue()
         term.BR('blue-red')
         assert '<DEFAULT><BLUE><BG_RED>blue-red<NORMAL>' == term.stream.getvalue()
+
+    def test_format(self, term):
+        single = term.format('Hi {:|RED} X', 'apple')
+        assert 'Hi <RED>apple<DEFAULT> X' == single
+
+        line = term.format('{GREEN}Hi X{DEFAULT}')
+        assert '<GREEN>Hi X<DEFAULT>' == line
+
+        no_color = term.format('Hi {}', 'X')
+        assert 'Hi X' == no_color
+
 
     def test_lines_cols(self, monkeypatch):
         # using curses

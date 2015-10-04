@@ -27,6 +27,7 @@ __version__ = (0, 3, 'dev0')
 import sys
 import subprocess
 
+from .formatter import Formatter
 
 # compatibility python2 and python3
 if sys.version_info >= (3, 0):
@@ -117,6 +118,29 @@ def get_codes_ansi():
     return codes
 
 
+class ColorFormatter(Formatter):
+    '''A Formatter that can handle extra format_spec for terminal colors'''
+    def __init__(self, term):
+        self.codes = term.codes
+
+    def format_field(self, value, format_spec):
+        parts = format_spec.split('|', 2)
+        formatted = format(value, parts[0])
+        if len(parts) == 1:
+            return formatted
+        color = ''.join(self.codes[c] for c in parts[1].split())
+        return color + formatted + self.codes['DEFAULT']
+
+    def get_value(self, key, args, kwargs):
+        if isinstance(key, int):
+            return args[key]
+        else:
+            try:
+                return kwargs[key]
+            except KeyError:
+                return self.codes[key]
+
+
 
 class Term(object):
     """Ouput formatting to a terminal with curses capabilities
@@ -143,6 +167,8 @@ class Term(object):
         self.codes = dict((k, decode(v)) for k, v in self.codes.items())
         self.set_style('DEFAULT', start_code)
         self._buffer = self['DEFAULT']
+        self.formatter = ColorFormatter(self)
+
 
     def get_codes(self, code=None, use_colors=None):
         """select source of codes (curses, ansi, dumb) and set self.codes"""
@@ -208,6 +234,12 @@ class Term(object):
         mostly used to create named sequence of codes
         """
         self.codes[name] = ''.join([(self[a]) for a in args])
+
+
+    def format(self, format_string, *args, **kwargs):
+        '''string formatter that handle colors'''
+        return self.formatter.vformat(format_string, args, kwargs)
+
 
     def demo(self):
         """demo colors and capabilities of your terminal """
